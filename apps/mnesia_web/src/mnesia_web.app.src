@@ -1,0 +1,14 @@
+{application, mnesia_web,
+ [
+  {description, ""},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib,
+                  cowboy,
+                  mnesia_cluster
+                 ]},
+  {mod, { mnesia_web_app, []}},
+  {env, []}
+ ]}.
