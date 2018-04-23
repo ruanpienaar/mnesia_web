@@ -1,0 +1,8 @@
+ ☐ Websocket calls:
+   ☐ List of tables
+   ☐ list of entries per table ( pagination required )
+   ☐ Entry search per table
+ ☐ Flesh out index.html with
+   ☐ 1 - list of tables
+   ☐ 2 - table entries, when clicked on table
+   ☐ 3 - entry pagination per table
