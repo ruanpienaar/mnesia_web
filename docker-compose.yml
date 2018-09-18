@@ -1,0 +1,11 @@
+version: "3"
+networks:
+ mnesia_web_net:
+services:
+  mnesia_node1:
+    environment:
+      NODENAME: node@mnesia_node1
+    tty: true
+    image: mnesia_docker_cluster_example
+    networks:
+      - mnesia_web_net

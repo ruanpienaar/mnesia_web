@@ -1,0 +1,14 @@
+version: "3"
+networks:
+  erlangmnesianet:
+services:
+
+# Example Service:
+#  ${NODE}:
+#    environment:
+#      NODENAME: node@${NODE}
+#    tty: true
+#    image: mnesia_docker_cluster_example
+#    networks:
+#      - erlangmnesianet
+

@@ -26,6 +26,17 @@ routes() ->
     [
      {'_',
         [
+            % TODO:
+            % Create
+            % Create entry on TABLE X
+            % {"/create/:table/:key", create_table_handler, []},
+            %
+            % GET entry on TABLE X
+            % {"/get/:table/:key", read_table_handler, []},
+
+            {"/create/mnesia_web_table/:key", create_mnesia_web_table_handler, []},
+            {"/read/mnesia_web_table/:key", read_mnesia_web_table_handler, []},
+
             {"/", cowboy_static, {priv_file, mnesia_web, "www/index.html"}},
             {"/[...]", cowboy_static, {priv_dir, mnesia_web, "/www"}}
         ]

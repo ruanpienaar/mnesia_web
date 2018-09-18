@@ -1,0 +1,66 @@
+#!/usr/bin/env escript
+%% -*- erlang -*-
+-mode(compile).
+
+main([Size]) ->
+    ServiceIDS = create_service_ids(Size),
+    {ok, FPID} = recreate_blank_docker_compose_file(),
+    ok = add_service_to_compose_file(ServiceIDS, FPID),
+    NodeNames = create_node_names(ServiceIDS),
+    ok = create_sys_config(NodeNames).
+
+create_service_ids(Size) ->
+    lists:map(fun(I) ->
+        "mnesia_node"++integer_to_list(I)
+    end, lists:seq(1, list_to_integer(Size))).
+
+recreate_blank_docker_compose_file() ->
+    ok = delete_file("docker-compose.yml"),
+    {ok, FPID} = file:open("docker-compose.yml", [write]),
+    S = "version: \"3\"~n"
+        "networks:~n"
+        " mnesia_web_net:~n"
+        "services:~n",
+    ok = file:write(FPID, io_lib:format(S, [])),
+    {ok, FPID}.
+
+add_service_to_compose_file(ServiceIDS, FPID) ->
+    lists:foreach(fun(SID) ->
+        ok = file:write(FPID, create_yml_service_string(SID))
+    end, ServiceIDS),
+    file:close(FPID).
+
+% create_sys_config_nodes() ->
+
+create_yml_service_string(ServiceIdStr) ->
+    S=
+    "  ~s:~n"
+    "    environment:~n"
+    "      NODENAME: node@~s~n"
+    "    tty: true~n"
+    "    image: mnesia_docker_cluster_example~n"
+    "    networks:~n"
+    "      - mnesia_web_net~n",
+    io_lib:format(S, [ServiceIdStr, ServiceIdStr]).
+
+delete_file(Filename) ->
+    case file:delete(Filename) of
+        ok ->
+            ok;
+        {error, enoent} ->
+            ok
+    end.
+
+create_node_names(ServiceIDS) ->
+    lists:map(fun(SID) -> list_to_atom("node@"++SID) end, ServiceIDS).
+
+create_sys_config(NodeNames) ->
+    {ok, [D]} = file:consult("template.sys.config"),
+    {kernel, KernelOpts} = lists:keyfind(kernel, 1, D),
+    NewKernelOpts = lists:keyreplace(sync_nodes_mandatory, 1, KernelOpts,
+                                     {sync_nodes_mandatory, NodeNames}),
+    NewConfig = lists:keyreplace(kernel, 1, D, {kernel, NewKernelOpts}),
+    ok = delete_file("cluster.sys.config"),
+    {ok, FPID} = file:open("cluster.sys.config", [write]),
+    ok = file:write(FPID, io_lib:format("~p.", [NewConfig])),
+    ok = file:close(FPID).
